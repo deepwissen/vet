@@ -15,4 +15,6 @@ export interface VetFinding {
 export interface ScanSummary {
   filesScanned: number;
   findings: VetFinding[];
+  /** Files skipped by .vetignore (surfaced for transparency — never silently dropped). */
+  filesIgnored?: number;
 }

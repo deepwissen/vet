@@ -26,6 +26,8 @@ is modified and nothing is sent anywhere.
 | Flag | Use |
 |---|---|
 | `--fail-on any\|error\|warning` | Severity that trips exit `1` (default `any`) |
+| `--ignore-file <path>` | Use a specific allowlist (default: `.vetignore`) |
+| `--no-ignore` | Bypass `.vetignore` — scan everything (audit mode) |
 | `-q, --quiet` | Suppress output when there are no findings |
 | `--no-color` | Disable ANSI color |
 | `-v, --version` | Print version |
@@ -61,6 +63,36 @@ vet || exit 1
 # CI pre-PR gate — block only on errors, feed GitHub code scanning
 vet --since origin/main --fail-on error --sarif > vet.sarif
 ```
+
+## Allowlist — `.vetignore`
+
+Benign, structural matches (test fixtures, doc examples, config files) can be
+suppressed with a `.vetignore` file at the directory you run `vet` from. It uses
+a documented subset of gitignore syntax; ignored files are skipped **before**
+scanning, and the count is always surfaced (never silently dropped).
+
+```gitignore
+# .vetignore
+test/                      # directory-only: ignores everything under test/
+*.md                       # bare glob: matches at any depth
+.gitleaks.toml             # a specific file
+src/generated/**           # anchored (contains a slash) + ** across segments
+!test/real-scan.test.ts    # negation: re-include (last matching rule wins)
+```
+
+Supported: `#` comments · blank lines · `!` negation (last match wins) ·
+trailing `/` (directory-only) · leading `/` or an internal `/` (anchored to root)
+· bare name (matches at any depth) · `*` (within a segment) · `**` (across
+segments) · `?` (one character).
+
+```bash
+vet .                      # respects ./.vetignore; prints "N skipped by .vetignore"
+vet . --no-ignore          # ignore the allowlist, scan everything
+vet . --ignore-file ci.vetignore
+```
+
+Line-level / per-rule suppression (`vet:allow` inline directives) is planned for
+a follow-up.
 
 ## Related
 

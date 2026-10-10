@@ -12,8 +12,14 @@ const CODES: Record<string, string> = {
 export function renderHuman(summary: ScanSummary, color: boolean): string {
   const paint = (key: string, s: string): string => (color ? `${CODES[key]}${s}${CODES.reset}` : s);
 
+  const ignoredNote = summary.filesIgnored
+    ? paint("dim", ` (${summary.filesIgnored} skipped by .vetignore)`)
+    : "";
+
   if (summary.findings.length === 0) {
-    return paint("info", "✓") + ` vet: no findings in ${summary.filesScanned} file(s)`;
+    return (
+      paint("info", "✓") + ` vet: no findings in ${summary.filesScanned} file(s)` + ignoredNote
+    );
   }
 
   const byFile = new Map<string, VetFinding[]>();
@@ -42,7 +48,8 @@ export function renderHuman(summary: ScanSummary, color: boolean): string {
   lines.push(
     paint("bold", `${summary.findings.length} finding(s)`) +
       ` across ${byFile.size} file(s) — ` +
-      `${counts.error} error, ${counts.warning} warning, ${counts.info} info`
+      `${counts.error} error, ${counts.warning} warning, ${counts.info} info` +
+      ignoredNote
   );
   return lines.join("\n");
 }

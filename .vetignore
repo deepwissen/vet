@@ -1,0 +1,2 @@
+# vet allowlist — intentional detector fixtures, not real findings
+test/

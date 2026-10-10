@@ -1,5 +1,7 @@
 import { parseArgs } from "node:util";
+import { relative, resolve } from "node:path";
 import { changedSince, expandPaths, readFiles, stagedFiles } from "./discover.js";
+import { loadIgnore } from "./ignore.js";
 import { scanFile } from "./scan.js";
 import { renderHuman } from "./report/human.js";
 import { renderJson } from "./report/json.js";
@@ -19,6 +21,8 @@ Options:
   --json                 Output findings as JSON
   --sarif                Output SARIF 2.1.0 (GitHub code scanning)
   --fail-on <level>      Exit non-zero on: any | error | warning   (default: any)
+  --ignore-file <path>   Allowlist of path globs to skip (default: .vetignore)
+  --no-ignore            Bypass .vetignore — scan everything
   --no-color             Disable colored output
   -q, --quiet            Suppress output when there are no findings
   -v, --version          Print version
@@ -48,6 +52,8 @@ export function run(
         json: { type: "boolean" },
         sarif: { type: "boolean" },
         "fail-on": { type: "string", default: "any" },
+        "ignore-file": { type: "string" },
+        "no-ignore": { type: "boolean" },
         "no-color": { type: "boolean" },
         quiet: { type: "boolean", short: "q" },
         version: { type: "boolean", short: "v" },
@@ -75,11 +81,29 @@ export function run(
   else if (typeof values.since === "string") paths = changedSince(values.since);
   else paths = stagedFiles();
 
+  // Apply .vetignore path globs before scanning (skipped files are never read).
+  let filesIgnored = 0;
+  if (!values["no-ignore"]) {
+    const ignoreFile =
+      typeof values["ignore-file"] === "string" ? values["ignore-file"] : undefined;
+    const ignore = loadIgnore(process.cwd(), ignoreFile);
+    if (ignore.patternCount > 0) {
+      const kept: string[] = [];
+      for (const p of paths) {
+        const rel = relative(process.cwd(), resolve(p)) || p;
+        if (ignore.matchPath(rel)) filesIgnored++;
+        else kept.push(p);
+      }
+      paths = kept;
+    }
+  }
+
   const files = readFiles(paths);
   const findings: VetFinding[] = [];
   for (const f of files) findings.push(...scanFile(f.path, f.content));
 
   const summary: ScanSummary = { filesScanned: files.length, findings };
+  if (filesIgnored > 0) summary.filesIgnored = filesIgnored;
 
   if (values.json) {
     out(renderJson(summary) + "\n");
