@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import { mkdtempSync, writeFileSync, mkdirSync, rmSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { mkdtempSync, writeFileSync, mkdirSync, rmSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { readFiles, expandPaths } from "../src/discover.js";
@@ -64,5 +65,27 @@ describe("expandPaths", () => {
 
   it("ignores non-existent paths", () => {
     expect(expandPaths([join(dir, "nope.ts")])).toEqual([]);
+  });
+
+  it("lists tracked files of a git dir in ANOTHER repo as usable paths", () => {
+    // Regression: expandPaths used to run git against the cwd's repo, which
+    // errored (and leaked to stderr) for a dir in a different repo. It must
+    // query the target's repo and return real, existing paths.
+    const repo = mkdtempSync(join(tmpdir(), "vet-exp-"));
+    const g = (args: string[]) => execFileSync("git", args, { cwd: repo, stdio: "pipe" });
+    g(["init", "-q"]);
+    g(["config", "user.email", "a@b.c"]);
+    g(["config", "user.name", "t"]);
+    writeFileSync(join(repo, "tracked.ts"), "export const x = 1;");
+    writeFileSync(join(repo, "untracked.ts"), "export const y = 2;"); // never `git add`ed
+    g(["add", "tracked.ts"]);
+    g(["commit", "-m", "init", "-q"]);
+
+    const found = expandPaths([repo]); // cwd here is the vet repo, not `repo`
+    expect(found.some((f) => f.endsWith("/tracked.ts"))).toBe(true);
+    expect(found.every((f) => existsSync(f))).toBe(true); // paths are real/usable
+    expect(found.some((f) => f.endsWith("/untracked.ts"))).toBe(false); // tracking-aware
+
+    rmSync(repo, { recursive: true, force: true });
   });
 });

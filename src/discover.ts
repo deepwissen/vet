@@ -6,9 +6,15 @@ import { looksBinary } from "./languages.js";
 const MAX_BYTES = 1_000_000; // skip very large files (core also caps internally)
 const SKIP_DIRS = new Set(["node_modules", ".git", "dist", "build", "out", "coverage", ".next"]);
 
-function git(args: string[]): string[] {
+function git(args: string[], cwd?: string): string[] {
   try {
-    return execFileSync("git", args, { encoding: "utf8" })
+    return execFileSync("git", args, {
+      encoding: "utf8",
+      cwd,
+      // Suppress git's stderr (e.g. "fatal: … is outside repository") — a
+      // directory in another repo is expected and handled by the walk fallback.
+      stdio: ["ignore", "pipe", "ignore"],
+    })
       .split("\n")
       .map((s) => s.trim())
       .filter(Boolean);
@@ -42,7 +48,9 @@ export function expandPaths(paths: string[]): string[] {
   for (const p of paths) {
     if (!existsSync(p)) continue;
     if (statSync(p).isDirectory()) {
-      const tracked = git(["ls-files", p]);
+      // Run git inside the target dir so it queries the repo that contains p
+      // (not the cwd's repo); ls-files paths are relative to p, so rejoin them.
+      const tracked = git(["ls-files"], p).map((f) => join(p, f));
       out.push(...(tracked.length ? tracked : walk(p)));
     } else {
       out.push(p);
