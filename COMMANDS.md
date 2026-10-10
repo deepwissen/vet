@@ -36,7 +36,7 @@ is modified and nothing is sent anywhere.
 ```bash
 # Secrets — AWS/GitHub/etc. keys, high-entropy strings, connection strings, JWTs
 vet src/config.ts
-#   const k = "AKIAIOSFODNN7EXAMPLE1";  → ERROR  aws-access-key (long-lived credential)
+#   const k = "AKIA<redacted-example-key>";  → ERROR  aws-access-key (long-lived credential)
 
 # Trap files — unsafe deserialization / data traps
 vet ml/loader.py
