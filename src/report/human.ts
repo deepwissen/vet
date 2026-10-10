@@ -12,9 +12,11 @@ const CODES: Record<string, string> = {
 export function renderHuman(summary: ScanSummary, color: boolean): string {
   const paint = (key: string, s: string): string => (color ? `${CODES[key]}${s}${CODES.reset}` : s);
 
-  const ignoredNote = summary.filesIgnored
-    ? paint("dim", ` (${summary.filesIgnored} skipped by .vetignore)`)
-    : "";
+  const notes: string[] = [];
+  if (summary.filesIgnored) notes.push(`${summary.filesIgnored} skipped by .vetignore`);
+  if (summary.findingsSuppressed)
+    notes.push(`${summary.findingsSuppressed} suppressed by vet:allow`);
+  const ignoredNote = notes.length ? paint("dim", ` (${notes.join(", ")})`) : "";
 
   if (summary.findings.length === 0) {
     return (

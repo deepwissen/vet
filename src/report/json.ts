@@ -6,6 +6,7 @@ export function renderJson(summary: ScanSummary): string {
       tool: "vet",
       filesScanned: summary.filesScanned,
       ...(summary.filesIgnored ? { filesIgnored: summary.filesIgnored } : {}),
+      ...(summary.findingsSuppressed ? { findingsSuppressed: summary.findingsSuppressed } : {}),
       findings: summary.findings,
     },
     null,

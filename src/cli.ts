@@ -2,6 +2,7 @@ import { parseArgs } from "node:util";
 import { relative, resolve } from "node:path";
 import { changedSince, expandPaths, readFiles, stagedFiles } from "./discover.js";
 import { loadIgnore } from "./ignore.js";
+import { applyInlineSuppressions } from "./suppress.js";
 import { scanFile } from "./scan.js";
 import { renderHuman } from "./report/human.js";
 import { renderJson } from "./report/json.js";
@@ -100,10 +101,21 @@ export function run(
 
   const files = readFiles(paths);
   const findings: VetFinding[] = [];
-  for (const f of files) findings.push(...scanFile(f.path, f.content));
+  let findingsSuppressed = 0;
+  for (const f of files) {
+    const found = scanFile(f.path, f.content);
+    if (values["no-ignore"]) {
+      findings.push(...found); // audit mode: bypass inline suppression too
+    } else {
+      const { kept, suppressed } = applyInlineSuppressions(found, f.content);
+      findings.push(...kept);
+      findingsSuppressed += suppressed;
+    }
+  }
 
   const summary: ScanSummary = { filesScanned: files.length, findings };
   if (filesIgnored > 0) summary.filesIgnored = filesIgnored;
+  if (findingsSuppressed > 0) summary.findingsSuppressed = findingsSuppressed;
 
   if (values.json) {
     out(renderJson(summary) + "\n");

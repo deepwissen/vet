@@ -91,8 +91,23 @@ vet . --no-ignore          # ignore the allowlist, scan everything
 vet . --ignore-file ci.vetignore
 ```
 
-Line-level / per-rule suppression (`vet:allow` inline directives) is planned for
-a follow-up.
+### Inline suppression — `vet:allow`
+
+For a single line (where a path glob would be too broad — e.g. an example key in
+a doc, or a detector's own source), use an inline directive. It is matched
+anywhere on the line, so it works inside any comment syntax.
+
+```ts
+const k = "AKIA…";   // vet:allow                         (suppress any rule on this line)
+const k = "AKIA…";   // vet:allow aws-access-key, trap-x  (only these rules)
+const k = "AKIA…";   // vet:allow aws-access-key -- documented example   (reason after --)
+// vet:allow-next-line aws-access-key
+const k = "AKIA…";                                         (suppress the line below)
+```
+
+Suppressed findings are counted and surfaced (`findingsSuppressed` in JSON,
+`(N suppressed by vet:allow)` in human output). `--no-ignore` bypasses **both**
+`.vetignore` and inline directives for a true-everything audit.
 
 ## Related
 

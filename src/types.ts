@@ -17,4 +17,6 @@ export interface ScanSummary {
   findings: VetFinding[];
   /** Files skipped by .vetignore (surfaced for transparency — never silently dropped). */
   filesIgnored?: number;
+  /** Findings suppressed by inline vet:allow directives (surfaced, never silent). */
+  findingsSuppressed?: number;
 }
