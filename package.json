@@ -1,0 +1,35 @@
+{
+  "name": "@deepwissen/vet",
+  "version": "0.1.0",
+  "description": "vet — scan what your AI agent is about to touch (secrets, trap files, risky tool configs) before you open the PR. Local, detect-and-explain only.",
+  "license": "MIT",
+  "type": "module",
+  "bin": { "vet": "./dist/cli.js" },
+  "files": ["dist"],
+  "engines": { "node": ">=18" },
+  "repository": { "type": "git", "url": "https://github.com/deepwissen/vet.git" },
+  "homepage": "https://github.com/deepwissen/vet#readme",
+  "keywords": ["ai", "security", "cli", "secret-scanning", "mcp", "pre-commit", "sarif", "preflight"],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "lint": "eslint src/ --ext .ts",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\"",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@deepwissen/preflight-core": "github:deepwissen/preflight-core#v0.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "@vitest/coverage-v8": "^4.1.0",
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.0",
+    "typescript": "^5.4.0",
+    "vitest": "^4.1.0"
+  }
+}
