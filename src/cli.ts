@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 import { parseArgs } from "node:util";
 import { changedSince, expandPaths, readFiles, stagedFiles } from "./discover.js";
 import { scanFile } from "./scan.js";
@@ -32,11 +31,16 @@ function rank(s: Severity): number {
   return s === "error" ? 3 : s === "warning" ? 2 : 1;
 }
 
-function run(): number {
+export function run(
+  argv: string[],
+  out: (s: string) => void = (s) => void process.stdout.write(s),
+  err: (s: string) => void = (s) => void process.stderr.write(s)
+): number {
   let values: Record<string, unknown>;
   let positionals: string[];
   try {
     const parsed = parseArgs({
+      args: argv,
       allowPositionals: true,
       options: {
         since: { type: "string" },
@@ -53,16 +57,16 @@ function run(): number {
     values = parsed.values;
     positionals = parsed.positionals;
   } catch (e) {
-    process.stderr.write(`vet: ${(e as Error).message}\n`);
+    err(`vet: ${(e as Error).message}\n`);
     return 2;
   }
 
   if (values.help) {
-    process.stdout.write(HELP + "\n");
+    out(HELP + "\n");
     return 0;
   }
   if (values.version) {
-    process.stdout.write(VERSION + "\n");
+    out(VERSION + "\n");
     return 0;
   }
 
@@ -78,12 +82,12 @@ function run(): number {
   const summary: ScanSummary = { filesScanned: files.length, findings };
 
   if (values.json) {
-    process.stdout.write(renderJson(summary) + "\n");
+    out(renderJson(summary) + "\n");
   } else if (values.sarif) {
-    process.stdout.write(renderSarif(summary) + "\n");
+    out(renderSarif(summary) + "\n");
   } else if (!(values.quiet && findings.length === 0)) {
     const color = Boolean(process.stdout.isTTY) && !values["no-color"] && !process.env.NO_COLOR;
-    process.stdout.write(renderHuman(summary, color) + "\n");
+    out(renderHuman(summary, color) + "\n");
   }
 
   if (findings.length === 0) return 0;
@@ -91,5 +95,3 @@ function run(): number {
   const threshold = failOn === "error" ? 3 : failOn === "warning" ? 2 : 1;
   return findings.some((f) => rank(f.severity) >= threshold) ? 1 : 0;
 }
-
-process.exit(run());

@@ -4,12 +4,30 @@
   "description": "vet — scan what your AI agent is about to touch (secrets, trap files, risky tool configs) before you open the PR. Local, detect-and-explain only.",
   "license": "MIT",
   "type": "module",
-  "bin": { "vet": "./dist/cli.js" },
-  "files": ["dist"],
-  "engines": { "node": ">=18" },
-  "repository": { "type": "git", "url": "https://github.com/deepwissen/vet.git" },
+  "bin": {
+    "vet": "./dist/bin.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/deepwissen/vet.git"
+  },
   "homepage": "https://github.com/deepwissen/vet#readme",
-  "keywords": ["ai", "security", "cli", "secret-scanning", "mcp", "pre-commit", "sarif", "preflight"],
+  "keywords": [
+    "ai",
+    "security",
+    "cli",
+    "secret-scanning",
+    "mcp",
+    "pre-commit",
+    "sarif",
+    "preflight"
+  ],
   "scripts": {
     "build": "tsc",
     "test": "vitest run",
