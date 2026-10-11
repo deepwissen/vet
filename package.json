@@ -39,7 +39,7 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@deepwissen/preflight-core": "github:deepwissen/preflight-core#v0.1.1"
+    "@deepwissen/preflight-core": "^0.1.0"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
