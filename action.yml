@@ -1,0 +1,72 @@
+name: "vet"
+description: "Pre-merge security gate for AI-agent context — secrets, trap files, risky tool configs. Local, detect-and-explain."
+author: "deepwissen"
+branding:
+  icon: "shield"
+  color: "purple"
+
+inputs:
+  paths:
+    description: "Explicit paths to scan. Default: files changed vs the PR base, or the whole repo on push."
+    required: false
+    default: ""
+  fail-on:
+    description: "Severity that fails the job: any | error | warning."
+    required: false
+    default: "error"
+  version:
+    description: "npm version/tag of @deepwissen/vet to run."
+    required: false
+    default: "latest"
+  sarif:
+    description: "Emit SARIF and upload to GitHub code scanning (needs security-events: write)."
+    required: false
+    default: "true"
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: "22"
+    - id: scan
+      shell: bash
+      env:
+        VET_PATHS: ${{ inputs.paths }}
+        VET_FAIL_ON: ${{ inputs.fail-on }}
+        VET_VERSION: ${{ inputs.version }}
+        VET_SARIF: ${{ inputs.sarif }}
+        PR_BASE: ${{ github.event.pull_request.base.sha }}
+      run: |
+        set -u
+        npm install -g "@deepwissen/vet@$VET_VERSION" >/dev/null 2>&1
+
+        TARGET="$VET_PATHS"
+        if [ -z "$TARGET" ]; then
+          if [ -n "${PR_BASE:-}" ]; then
+            git fetch --no-tags --depth=1 origin "$PR_BASE" >/dev/null 2>&1 || true
+            TARGET="--since $PR_BASE"
+          else
+            TARGET="."
+          fi
+        fi
+        echo "vet: scanning $TARGET"
+
+        # Human-readable result to the log; capture the gate exit code.
+        vet $TARGET --no-color --fail-on "$VET_FAIL_ON"
+        echo "code=$?" >> "$GITHUB_OUTPUT"
+
+        # SARIF for inline PR annotations (best-effort).
+        if [ "$VET_SARIF" = "true" ]; then
+          vet $TARGET --sarif > "$RUNNER_TEMP/vet.sarif" 2>/dev/null || true
+        fi
+
+    - name: Upload SARIF
+      if: ${{ inputs.sarif == 'true' && hashFiles(format('{0}/vet.sarif', runner.temp)) != '' }}
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: ${{ runner.temp }}/vet.sarif
+
+    - name: Enforce gate
+      shell: bash
+      run: exit ${{ steps.scan.outputs.code }}

@@ -1,0 +1,7 @@
+- id: vet
+  name: vet
+  description: "Scan staged files for secrets, trap files, and risky tool configs before commit."
+  entry: vet
+  language: node
+  pass_filenames: true
+  require_serial: true
