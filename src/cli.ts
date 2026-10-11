@@ -9,7 +9,7 @@ import { renderJson } from "./report/json.js";
 import { renderSarif } from "./report/sarif.js";
 import type { ScanSummary, Severity, VetFinding } from "./types.js";
 
-const VERSION = "0.1.0"; // keep in sync with package.json
+const VERSION = "0.1.1"; // keep in sync with package.json
 
 const HELP = `vet — scan what your AI agent is about to touch before you open the PR.
 
@@ -21,7 +21,7 @@ Usage:
 Options:
   --json                 Output findings as JSON
   --sarif                Output SARIF 2.1.0 (GitHub code scanning)
-  --fail-on <level>      Exit non-zero on: any | error | warning   (default: any)
+  --fail-on <level>      Exit non-zero on: any | error | warning   (default: error)
   --ignore-file <path>   Allowlist of path globs to skip (default: .vetignore)
   --no-ignore            Bypass .vetignore — scan everything
   --no-color             Disable colored output
@@ -52,7 +52,7 @@ export function run(
         staged: { type: "boolean" },
         json: { type: "boolean" },
         sarif: { type: "boolean" },
-        "fail-on": { type: "string", default: "any" },
+        "fail-on": { type: "string", default: "error" },
         "ignore-file": { type: "string" },
         "no-ignore": { type: "boolean" },
         "no-color": { type: "boolean" },

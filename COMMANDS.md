@@ -25,7 +25,7 @@ is modified and nothing is sent anywhere.
 
 | Flag | Use |
 |---|---|
-| `--fail-on any\|error\|warning` | Severity that trips exit `1` (default `any`) |
+| `--fail-on any\|error\|warning` | Severity that trips exit `1` (default `error`) |
 | `--ignore-file <path>` | Use a specific allowlist (default: `.vetignore`) |
 | `--no-ignore` | Bypass `.vetignore` — scan everything (audit mode) |
 | `-q, --quiet` | Suppress output when there are no findings |

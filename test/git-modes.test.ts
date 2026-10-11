@@ -65,7 +65,8 @@ describe("git --since mode", () => {
 
   it("run --since scans the changed set", () => {
     let out = "";
-    const code = run(["--since", "HEAD~1", "--no-color"], (s) => (out += s), () => {});
+    // loader.py's pickle trap is a warning; default fail-on is error, so gate on warning here
+    const code = run(["--since", "HEAD~1", "--fail-on", "warning", "--no-color"], (s) => (out += s), () => {});
     expect(code).toBe(1);
     expect(out).toContain("trap");
   });

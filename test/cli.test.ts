@@ -44,10 +44,10 @@ describe("vet CLI — exit codes & scanning", () => {
     expect(r.out).toContain("ERROR");
   });
 
-  it("--fail-on error ignores warning-only findings (trap)", () => {
+  it("default (fail-on error) ignores warning-only findings (trap)", () => {
     const p = write("trap.py", "import pickle\ndata = pickle.load(open('x.pkl'))\n");
-    expect(invoke([p]).code).toBe(1); // default fail-on any → trips on the warning
-    expect(invoke([p, "--fail-on", "error"]).code).toBe(0); // no error-severity finding
+    expect(invoke([p]).code).toBe(0); // default fail-on error → warning does not trip
+    expect(invoke([p, "--fail-on", "any"]).code).toBe(1); // but fail-on any does
   });
 
   it("--fail-on warning trips on a warning", () => {

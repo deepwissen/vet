@@ -32,7 +32,7 @@ vet --since main       # scan files changed since a ref
 vet src/ config/       # scan specific files/dirs
 vet --json             # machine-readable JSON
 vet --sarif            # SARIF 2.1.0 → GitHub code scanning annotations
-vet --fail-on error    # only fail the build on errors (default: any finding)
+vet --fail-on any      # fail on any finding (default: error — real exposures only)
 ```
 
 **Exit codes:** `0` clean · `1` findings at/above `--fail-on` · `2` usage/error.
