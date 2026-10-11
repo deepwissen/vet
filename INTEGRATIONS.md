@@ -26,7 +26,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0     # needed so --since can diff against the PR base
-      - uses: deepwissen/vet@v0.1.0
+      - uses: deepwissen/vet@v0.1.1
         with:
           fail-on: error     # any | error | warning
           # paths: "src/"    # optional; default = files changed vs the PR base
