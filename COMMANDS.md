@@ -52,7 +52,19 @@ vet CLAUDE.md
 # MCP hygiene — secrets in config, unpinned servers, risky tool grants
 vet .mcp.json
 #   unpinned "npx -y @vendor/mcp"  → mcp-unpinned-server
+
+# Agent autonomy (OWASP LLM06) — can an agent act without a human in the loop?
+vet .claude/settings.json
+#   permissions.allow: ["Bash(*)"]  → ERROR  agent-broad-command-allow
+vet package.json
+#   "claude --dangerously-skip-permissions"  → ERROR  agent-skip-permissions
 ```
+
+The **agent** category inspects agent config across Claude Code, MCP, Cline/Roo,
+Aider, Codex, and Continue. Errors (block by default): `agent-skip-permissions`,
+`agent-broad-command-allow`, `agent-auto-approve-exec`, `mcp-always-allow` (`*`).
+Warnings: `agent-auto-approve-write`, `agent-auto-run-hook`, `agent-enable-all-mcp`.
+Scoped allows (`Bash(git:*)`, `Read(*)`) and `false` values are never flagged.
 
 ## Typical wiring
 
