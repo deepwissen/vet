@@ -1,5 +1,5 @@
 export type Severity = "error" | "warning" | "info";
-export type Category = "secret" | "trap" | "integrity" | "mcp";
+export type Category = "secret" | "trap" | "integrity" | "mcp" | "agent";
 
 /** A normalized finding emitted by `vet`, independent of the core's internal shapes. */
 export interface VetFinding {

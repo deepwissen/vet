@@ -3,6 +3,7 @@ import {
   detectTraps,
   scanInstructionIntegrity,
   scanMcpConfigs,
+  scanAgentConfig,
   type ContextSnapshot,
   type FileInfo,
   type InstructionFileIssue,
@@ -91,10 +92,11 @@ export function scanFile(path: string, content: string): VetFinding[] {
     });
   }
 
-  // 3 + 4. Integrity and MCP (both surface via instructionFileIssues)
+  // 3 + 4 + 5. Integrity, MCP, and agent-autonomy (all surface via instructionFileIssues)
   const issues: InstructionFileIssue[] = [
     ...(scanInstructionIntegrity(snap, {}).instructionFileIssues ?? []),
     ...(scanMcpConfigs(snap, {}).instructionFileIssues ?? []),
+    ...(scanAgentConfig(snap, {}).instructionFileIssues ?? []),
   ];
   for (const i of issues) {
     findings.push({
@@ -102,7 +104,11 @@ export function scanFile(path: string, content: string): VetFinding[] {
       line: i.lineNumber,
       rule: i.issue,
       severity: (i.severity ?? "warning") as Severity,
-      category: i.issue.startsWith("mcp-") ? "mcp" : "integrity",
+      category: i.issue.startsWith("agent-")
+        ? "agent"
+        : i.issue.startsWith("mcp-")
+          ? "mcp"
+          : "integrity",
       message: i.description,
       suggestion: i.suggestion,
     });
