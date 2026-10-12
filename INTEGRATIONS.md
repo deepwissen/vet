@@ -129,3 +129,61 @@ pre-commit hook wants.
   configs too.
 - **audit only (never fail):** run with `--json`/`--sarif`, ignore the exit code,
   and report.
+
+---
+
+## Dashboards & security platforms (SARIF / JSON)
+
+`vet` has no server or proprietary API — it writes two standard interchange
+formats, and whatever you want to feed consumes the file:
+
+- **SARIF 2.1.0** (`--sarif`) — the universal static-analysis interchange format,
+  understood by code-scanning UIs and ASPM aggregators.
+- **JSON** (`--json`) — for custom dashboards, data pipelines, and ad-hoc queries.
+
+```bash
+vet . --sarif > vet.sarif     # for code-scanning / ASPM ingestion
+vet . --json  > vet.json      # for custom dashboards / pipelines (pipe to jq, a DB, etc.)
+```
+
+### Where the output plugs in
+
+| Target | How |
+|---|---|
+| **GitHub code scanning** | `--sarif` → `github/codeql-action/upload-sarif` (the `deepwissen/vet` Action does this automatically) |
+| **GitLab** | publish `--sarif` as a SAST report artifact, or consume `--json` |
+| **Azure DevOps** | `--sarif` via the *SARIF SAST Scans* extension |
+| **ASPM / aggregator dashboards** (DefectDojo, ArmorCode, Apiiro, …) | upload `--sarif` — they ingest SARIF from many scanners, so vet findings sit next to your other tools. **Best fit for a single unified view.** |
+| **SonarQube** | import as external issues (SARIF / generic import; support varies by version) |
+| **Custom dashboard** (Grafana, Elastic, BigQuery, …) | `--json` → your datastore |
+
+### How it works (the pattern)
+
+```
+vet . --sarif > vet.sarif
+        │
+        ▼
+  one SARIF file  ──►  code-scanning UI (GitHub/GitLab/Azure)   → inline PR annotations
+                 ──►  ASPM / aggregator (DefectDojo, ArmorCode) → unified dashboard
+                 ──►  SonarQube external-issues import          → quality gate
+```
+
+There's no callback or integration SDK — the SARIF/JSON artifact is the whole
+contract. Produce it in CI, hand it to the consumer's upload step.
+
+### Using `vet` alongside Checkmarx / Veracode / Snyk
+
+These are **scanners in their own right**, not SARIF aggregators — so you don't
+route `vet` *through* them. Two patterns:
+
+- **Aggregate alongside** (recommended): run your SAST tool **and** `vet` in CI,
+  and let a layer above — GitHub/GitLab code scanning, or an ASPM like
+  DefectDojo / ArmorCode — collect both SARIF streams into one view.
+- **Import** (if supported): some platforms (e.g. **Checkmarx One**) can import
+  external SARIF results via their results API — check your specific version.
+
+`vet` is **complementary, not a replacement**: your SAST tool scans source code;
+`vet` covers the AI-agent layer it isn't built for — secrets about to enter an
+agent's context, trap files, risky MCP/tool configs, and prompt-injection in
+instruction files. The integration goal is to add vet's signal *next to* your
+existing scanners in one dashboard, via SARIF.
