@@ -1,6 +1,6 @@
 {
   "name": "@deepwissen/vet",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "vet — scan what your AI agent is about to touch (secrets, trap files, risky tool configs) before you open the PR. Local, detect-and-explain only.",
   "license": "MIT",
   "type": "module",

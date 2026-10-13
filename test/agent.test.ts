@@ -19,11 +19,15 @@ describe("vet — agent-autonomy findings", () => {
     expect(f.find((x) => x.rule === "agent-skip-permissions")?.category).toBe("agent");
   });
 
-  it("flags MCP alwaysAllow ['*'] under the mcp category", () => {
+  it("flags MCP alwaysAllow ['*'] as a single mcp error (no duplicate)", () => {
     const f = scanFile(".mcp.json", `{ "mcpServers": { "x": { "alwaysAllow": ["*"] } } }`);
-    const hit = f.find((x) => x.rule === "mcp-always-allow");
+    // Owned by the MCP scanner (mcp-risky-config), escalated to error in core 0.1.3.
+    const hit = f.find((x) => x.rule === "mcp-risky-config" && /auto-approves ALL/.test(x.message));
+    expect(hit).toBeDefined();
     expect(hit?.category).toBe("mcp");
     expect(hit?.severity).toBe("error");
+    // the removed agent-scanner duplicate no longer appears
+    expect(f.find((x) => x.rule === "mcp-always-allow")).toBeUndefined();
   });
 
   it("does NOT flag scoped allow entries (false-positive guard)", () => {
