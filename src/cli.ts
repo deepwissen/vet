@@ -9,7 +9,7 @@ import { renderJson } from "./report/json.js";
 import { renderSarif } from "./report/sarif.js";
 import type { ScanSummary, Severity, VetFinding } from "./types.js";
 
-const VERSION = "0.1.1"; // keep in sync with package.json
+const VERSION = "0.1.4"; // keep in sync with package.json
 
 const HELP = `vet — scan what your AI agent is about to touch before you open the PR.
 
