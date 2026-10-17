@@ -2,6 +2,8 @@
 
 **Scan what your AI agent is about to touch — before you open the PR.**
 
+![vet in action](demo/vet-demo.gif)
+
 `vet` is a local, pre-PR security gate for AI-assisted development. It inspects your
 changed files for the things that bite agentic workflows:
 
@@ -9,10 +11,13 @@ changed files for the things that bite agentic workflows:
 - 🪤 **Trap files** — *safe to read, not safe to auto-process*: unsafe deserialization
   (`pickle`/`torch`/`yaml.load`…) and data-file traps (template expressions, external
   `reference://` payloads)
+- 🤖 **Excessive agency** (OWASP LLM06) — agent configs that let the AI act without you:
+  `Bash(*)`, `--dangerously-skip-permissions`, auto-approve-execute, across Claude Code,
+  MCP, Cline/Roo, Aider, Codex, Continue
 - 🧩 **Tool-config risk** — MCP configs with embedded secrets, prompt-injected tool
   descriptions, over-broad auto-approve grants, or unpinned (supply-chain-risky) servers
-- 📏 **Instruction-file integrity** — hidden unicode, bidi overrides, prompt injection in
-  `CLAUDE.md` / `.cursorrules` / copilot instructions
+- 📏 **Instruction-file integrity** — hidden unicode, bidi overrides, prompt injection,
+  LLM role-tag spoofing in `CLAUDE.md` / `.cursorrules` / copilot instructions / prompt files
 
 All analysis is **local and detect-and-explain only** — `vet` never modifies your files
 and never sends anything anywhere. It's the same engine behind the

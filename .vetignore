@@ -1,2 +1,5 @@
 # vet allowlist — intentional detector fixtures, not real findings
 test/
+
+# demo fixtures with planted findings (for the README GIF), not real secrets
+demo/setup-demo.sh
