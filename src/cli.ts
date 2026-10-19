@@ -11,7 +11,7 @@ import { renderJson } from "./report/json.js";
 import { renderSarif } from "./report/sarif.js";
 import type { ScanSummary, Severity, VetFinding } from "./types.js";
 
-const VERSION = "0.1.5"; // keep in sync with package.json
+const VERSION = "0.1.6"; // keep in sync with package.json
 
 /** Resolve the actual @deepwissen/preflight-core version in use (the engine that
  *  carries the detection rules), so `vet --version` shows which engine a user is
