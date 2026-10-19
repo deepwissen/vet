@@ -12,6 +12,30 @@ const EXT_LANG: Record<string, string> = {
   ".go": "go",
   ".rs": "rust",
   ".java": "java",
+  // C / C++ family and other compiled langs — mapping them to a code language
+  // (not the "plaintext" fallback) keeps them out of the engine's config-file
+  // handling, which would otherwise do aggressive unquoted keyword matching and
+  // flag code like `cur_token = tokens[i];` as a hardcoded secret.
+  ".c": "c",
+  ".h": "c",
+  ".cpp": "cpp",
+  ".cc": "cpp",
+  ".cxx": "cpp",
+  ".hpp": "cpp",
+  ".hh": "cpp",
+  ".hxx": "cpp",
+  ".l": "cpp", // flex lexer
+  ".y": "cpp", // bison grammar
+  ".cs": "csharp",
+  ".php": "php",
+  ".swift": "swift",
+  ".kt": "kotlin",
+  ".kts": "kotlin",
+  ".scala": "scala",
+  ".sql": "sql",
+  ".lua": "lua",
+  ".pl": "perl",
+  ".m": "objective-c",
   ".json": "json",
   ".jsonc": "jsonc",
   ".yaml": "yaml",

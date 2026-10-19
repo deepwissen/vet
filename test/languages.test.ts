@@ -13,6 +13,15 @@ describe("langFromPath", () => {
     expect(langFromPath(".env")).toBe("dotenv");
     expect(langFromPath(".env.local")).toBe("dotenv");
   });
+  it("maps C/C++ and other compiled-lang extensions (not plaintext)", () => {
+    expect(langFromPath("parser.cpp")).toBe("cpp");
+    expect(langFromPath("gram.hpp")).toBe("cpp");
+    expect(langFromPath("scan.l")).toBe("cpp");
+    expect(langFromPath("re2.cc")).toBe("cpp");
+    expect(langFromPath("main.c")).toBe("c");
+    expect(langFromPath("App.cs")).toBe("csharp");
+    expect(langFromPath("q.sql")).toBe("sql");
+  });
   it("falls back to plaintext", () => {
     expect(langFromPath("LICENSE")).toBe("plaintext");
     expect(langFromPath("weird.xyz")).toBe("plaintext");
