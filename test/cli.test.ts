@@ -87,10 +87,13 @@ describe("vet CLI — meta flags", () => {
     expect(r.out).toMatch(/Usage:/);
   });
 
-  it("--version prints a version and exits 0", () => {
+  it("--version prints the vet version (and the engine version when resolvable)", () => {
     const r = invoke(["--version"]);
     expect(r.code).toBe(0);
-    expect(r.out.trim()).toMatch(/^\d+\.\d+\.\d+$/);
+    // leading token is the vet version (so `vet --version | cut -d' ' -f1` works)
+    expect(r.out.trim()).toMatch(/^\d+\.\d+\.\d+/);
+    // engine line present when preflight-core resolves (it does under node_modules)
+    expect(r.out).toMatch(/engine @deepwissen\/preflight-core \d+\.\d+\.\d+/);
   });
 
   it("an unknown flag exits 2 with an error", () => {

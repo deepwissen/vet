@@ -1,5 +1,7 @@
 import { parseArgs } from "node:util";
-import { relative, resolve } from "node:path";
+import { relative, resolve, dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+import { readFileSync, existsSync } from "node:fs";
 import { changedSince, expandPaths, readFiles, stagedFiles } from "./discover.js";
 import { loadIgnore } from "./ignore.js";
 import { applyInlineSuppressions } from "./suppress.js";
@@ -9,7 +11,32 @@ import { renderJson } from "./report/json.js";
 import { renderSarif } from "./report/sarif.js";
 import type { ScanSummary, Severity, VetFinding } from "./types.js";
 
-const VERSION = "0.1.4"; // keep in sync with package.json
+const VERSION = "0.1.5"; // keep in sync with package.json
+
+/** Resolve the actual @deepwissen/preflight-core version in use (the engine that
+ *  carries the detection rules), so `vet --version` shows which engine a user is
+ *  on — it's a version range, so this can lag/lead vet's own version. Walks up
+ *  from this file looking for the engine's package.json under node_modules
+ *  (handles both hoisted and nested installs; core is ESM-only so require.resolve
+ *  doesn't work on it). */
+function engineVersion(): string | null {
+  try {
+    let dir = dirname(fileURLToPath(import.meta.url));
+    for (let i = 0; i < 8; i++) {
+      const pkg = join(dir, "node_modules", "@deepwissen", "preflight-core", "package.json");
+      if (existsSync(pkg)) {
+        const v = JSON.parse(readFileSync(pkg, "utf8")).version;
+        return typeof v === "string" ? v : null;
+      }
+      const parent = dirname(dir);
+      if (parent === dir) break;
+      dir = parent;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
 
 const HELP = `vet — scan what your AI agent is about to touch before you open the PR.
 
@@ -73,7 +100,8 @@ export function run(
     return 0;
   }
   if (values.version) {
-    out(VERSION + "\n");
+    const engine = engineVersion();
+    out(VERSION + (engine ? ` (engine @deepwissen/preflight-core ${engine})` : "") + "\n");
     return 0;
   }
 
