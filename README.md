@@ -30,6 +30,18 @@ npx @deepwissen/vet            # run without installing
 npm i -g @deepwissen/vet       # or install the `vet` command
 ```
 
+The detection rules live in `@deepwissen/preflight-core`, pulled in automatically.
+`vet --version` shows both so you can confirm which engine you're on:
+```bash
+$ vet --version
+0.1.5 (engine @deepwissen/preflight-core 0.1.8)
+```
+
+> **Getting an old version from `npx`?** npx caches installs and may reuse a stale
+> one even with `@latest`. Pin the exact version `npx @deepwissen/vet@0.1.5`, or
+> `npx --ignore-existing @deepwissen/vet`, or clear the cache with
+> `rm -rf ~/.npm/_npx`. Run `vet --version` to confirm the engine version updated.
+
 ## Usage
 ```bash
 vet                    # scan git staged changes (default)
