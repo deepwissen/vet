@@ -10,9 +10,10 @@ import { scanFile } from "./scan.js";
 import { renderHuman } from "./report/human.js";
 import { renderJson } from "./report/json.js";
 import { renderSarif } from "./report/sarif.js";
+import { runCanary } from "./canary.js";
 import type { ScanSummary, Severity, VetFinding } from "./types.js";
 
-const VERSION = "0.1.8"; // keep in sync with package.json
+const VERSION = "0.1.9"; // keep in sync with package.json
 
 /** Resolve the actual @deepwissen/preflight-core version in use (the engine that
  *  carries the detection rules), so `vet --version` shows which engine a user is
@@ -45,6 +46,8 @@ Usage:
   vet [paths...]         Scan the given files/dirs
   vet                    Scan git staged changes (default)
   vet --since <ref>      Scan files changed since a git ref (e.g. main)
+  vet canary             Runtime test: does your AI agent read ignored files?
+                         (vet canary --check | --cleanup | --help)
 
 Options:
   --json                 Output findings as JSON
@@ -69,6 +72,10 @@ export function run(
   out: (s: string) => void = (s) => void process.stdout.write(s),
   err: (s: string) => void = (s) => void process.stderr.write(s)
 ): number {
+  // Subcommands are dispatched before the scan flag parser (which treats unknown
+  // positionals as paths). `canary` is a runtime exposure test, not a scan.
+  if (argv[0] === "canary") return runCanary(argv.slice(1), out, err);
+
   let values: Record<string, unknown>;
   let positionals: string[];
   try {

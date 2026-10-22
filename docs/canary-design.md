@@ -1,7 +1,8 @@
 # Design: `vet canary` — runtime exposure test
 
-**Status:** SCHEDULED, build AFTER the disclaimer wiring ships. A real check the
-user runs, not a nudge. All local; nothing is ever sent anywhere.
+**Status:** SHIPPED in vet 0.1.9 (`src/canary.ts`, `vet canary [--check|--cleanup]`).
+A real check the user runs, not a nudge. All local; nothing is ever sent anywhere.
+See `COMMANDS.md` for the user-facing writeup. Below is the design as built.
 
 ## Why the obvious design is wrong
 "Write a fake secret to an ignored path, ask the agent to *read this file*" tests

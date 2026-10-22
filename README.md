@@ -50,9 +50,19 @@ vet src/ config/       # scan specific files/dirs
 vet --json             # machine-readable JSON
 vet --sarif            # SARIF 2.1.0 → GitHub code scanning annotations
 vet --fail-on any      # fail on any finding (default: error — real exposures only)
+vet canary             # runtime test: does your agent read ignored files?
 ```
 
 **Exit codes:** `0` clean · `1` findings at/above `--fail-on` · `2` usage/error.
+
+### `vet canary` — the runtime test scanning can't do
+
+Ignore files (`.cursorignore`, `.claudeignore`, …) are best-effort requests, not
+walls. `vet canary` writes a **clearly-fake, local-only** credential to an ignored
+path, then you ask your agent a general question without naming the file — if the
+token shows up, your ignore rules didn't stop it. `vet canary --check` searches
+locally for leaks; `vet canary --cleanup` reverses everything. See
+[COMMANDS.md](./COMMANDS.md#vet-canary--does-your-agent-read-ignored-files).
 
 ## In CI (fail the PR on findings)
 ```yaml
