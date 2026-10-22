@@ -29,11 +29,12 @@ beforeAll(() => {
 afterAll(() => rmSync(dir, { recursive: true, force: true }));
 
 describe("vet CLI — exit codes & scanning", () => {
-  it("exits 0 and reports clean for a safe file", () => {
+  it("exits 0 and reports clean (with the recall disclaimer) for a safe file", () => {
     const p = write("clean.ts", "export const add = (a: number, b: number) => a + b;\n");
     const r = invoke([p]);
     expect(r.code).toBe(0);
-    expect(r.out).toMatch(/no findings/);
+    expect(r.out).toMatch(/nothing flagged/);
+    expect(r.out).toMatch(/does NOT mean none are present/i);
   });
 
   it("exits 1 and reports a secret", () => {

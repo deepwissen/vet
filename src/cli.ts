@@ -2,6 +2,7 @@ import { parseArgs } from "node:util";
 import { relative, resolve, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { readFileSync, existsSync } from "node:fs";
+import { auditDetectedExposure, isAiIgnoreFile } from "@deepwissen/preflight-core";
 import { changedSince, expandPaths, readFiles, stagedFiles } from "./discover.js";
 import { loadIgnore } from "./ignore.js";
 import { applyInlineSuppressions } from "./suppress.js";
@@ -11,7 +12,7 @@ import { renderJson } from "./report/json.js";
 import { renderSarif } from "./report/sarif.js";
 import type { ScanSummary, Severity, VetFinding } from "./types.js";
 
-const VERSION = "0.1.7"; // keep in sync with package.json
+const VERSION = "0.1.8"; // keep in sync with package.json
 
 /** Resolve the actual @deepwissen/preflight-core version in use (the engine that
  *  carries the detection rules), so `vet --version` shows which engine a user is
@@ -138,6 +139,28 @@ export function run(
       const { kept, suppressed } = applyInlineSuppressions(found, f.content);
       findings.push(...kept);
       findingsSuppressed += suppressed;
+    }
+  }
+
+  // Detected-exposure post-pass (repo-level): every file with a detected secret is
+  // reachable by the AI regardless of ignore coverage. Needs the whole scanned set.
+  if (!values["no-ignore"]) {
+    const secretFiles = [
+      ...new Set(findings.filter((f) => f.category === "secret").map((f) => f.file)),
+    ];
+    const aiIgnoreFiles = files
+      .filter((f) => isAiIgnoreFile(f.path))
+      .map((f) => ({ path: f.path, content: f.content }));
+    for (const i of auditDetectedExposure(secretFiles, aiIgnoreFiles)) {
+      findings.push({
+        file: i.filePath,
+        line: i.lineNumber,
+        rule: i.issue,
+        severity: (i.severity ?? "warning") as Severity,
+        category: "secret",
+        message: i.description,
+        suggestion: i.suggestion,
+      });
     }
   }
 

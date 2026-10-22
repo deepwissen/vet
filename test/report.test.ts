@@ -54,8 +54,12 @@ describe("renderSarif", () => {
 });
 
 describe("renderHuman", () => {
-  it("reports a clean run", () => {
-    expect(renderHuman(empty, false)).toMatch(/no findings in 3 file/);
+  it("a clean run carries the recall disclaimer and NO bare '✓ no findings'", () => {
+    const out = renderHuman(empty, false);
+    // structural enforcement: the reassuring string is gone, the disclaimer is mandatory
+    expect(out).not.toMatch(/✓\s*vet: no findings/);
+    expect(out).toMatch(/does NOT mean none are present/i);
+    expect(out).toMatch(/nothing flagged/i);
   });
 
   it("groups findings and summarizes counts (no color)", () => {

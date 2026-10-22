@@ -4,6 +4,7 @@ import {
   scanInstructionIntegrity,
   scanMcpConfigs,
   scanAgentConfig,
+  auditIgnoreCoverage,
   type ContextSnapshot,
   type FileInfo,
   type InstructionFileIssue,
@@ -92,11 +93,14 @@ export function scanFile(path: string, content: string): VetFinding[] {
     });
   }
 
-  // 3 + 4 + 5. Integrity, MCP, and agent-autonomy (all surface via instructionFileIssues)
+  // 3 + 4 + 5 + 6. Integrity, MCP, agent-autonomy, and AI-ignore coverage
+  // (all surface via instructionFileIssues). auditIgnoreCoverage self-filters —
+  // it returns [] for anything that isn't an AI-ignore file.
   const issues: InstructionFileIssue[] = [
     ...(scanInstructionIntegrity(snap, {}).instructionFileIssues ?? []),
     ...(scanMcpConfigs(snap, {}).instructionFileIssues ?? []),
     ...(scanAgentConfig(snap, {}).instructionFileIssues ?? []),
+    ...auditIgnoreCoverage(path, content),
   ];
   for (const i of issues) {
     findings.push({

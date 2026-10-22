@@ -1,4 +1,9 @@
+import { DETECTION_DISCLAIMER, IGNORE_CAVEAT } from "@deepwissen/preflight-core";
 import type { ScanSummary, Severity, VetFinding } from "../types.js";
+
+// Findings whose remediation is the ignore caveat (shown once per report, not per
+// finding — repetition breeds caveat-blindness).
+const IGNORE_RULES = new Set(["secret-ai-reachable", "ignore-coverage-gap"]);
 
 const CODES: Record<string, string> = {
   error: "\x1b[31m",
@@ -19,8 +24,13 @@ export function renderHuman(summary: ScanSummary, color: boolean): string {
   const ignoredNote = notes.length ? paint("dim", ` (${notes.join(", ")})`) : "";
 
   if (summary.findings.length === 0) {
+    // No reassuring "✓ no findings": a clean scan is bounded by scanner recall, so
+    // it must carry the disclaimer — "0 findings" must never read as "no secrets".
     return (
-      paint("info", "✓") + ` vet: no findings in ${summary.filesScanned} file(s)` + ignoredNote
+      `vet: nothing flagged at or above the gate in ${summary.filesScanned} file(s)` +
+      ignoredNote +
+      "\n" +
+      paint("dim", `  note: ${DETECTION_DISCLAIMER}`)
     );
   }
 
@@ -32,6 +42,10 @@ export function renderHuman(summary: ScanSummary, color: boolean): string {
   }
 
   const lines: string[] = [];
+  // The ignore caveat, once at the top (not repeated on every finding).
+  if (summary.findings.some((f) => IGNORE_RULES.has(f.rule))) {
+    lines.push(paint("dim", `note: ${IGNORE_CAVEAT}`), "");
+  }
   for (const [file, items] of byFile) {
     lines.push(paint("bold", file));
     for (const f of items) {
