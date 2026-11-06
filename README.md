@@ -42,6 +42,34 @@ $ vet --version
 > `npx --ignore-existing @deepwissen/vet`, or clear the cache with
 > `rm -rf ~/.npm/_npx`. Run `vet --version` to confirm the engine version updated.
 
+## Trust & safety
+
+`vet` asks for read access to your codebase, so here's what it does and doesn't do —
+every point is **checkable**, not just claimed:
+
+- **Runs entirely locally — no network, no telemetry.** It opens no sockets and sends
+  nothing anywhere: not your code, not the findings. _Verify it:_ run `vet` with your
+  network off, or watch it with your firewall / `lsof` — you'll see zero connections.
+- **Read-only.** Scanning never modifies your files. The only command that writes is
+  `vet canary`, and only when you run it explicitly — it creates a local, clearly
+  labelled *fake*-credential file and reverses everything with `vet canary --cleanup`.
+- **No install scripts.** Installing `vet` runs no `preinstall`/`postinstall` hooks —
+  nothing executes until you invoke the command yourself.
+- **Zero third-party dependencies.** `vet` pulls only its own first-party engine
+  ([`@deepwissen/preflight-core`](https://github.com/deepwissen/preflight-core)), which
+  itself has none — so there's no transitive tree of other people's code to trust.
+  Check: `npm view @deepwissen/vet dependencies`.
+- **Open source and inspectable.** The code is public
+  ([vet](https://github.com/deepwissen/vet),
+  [engine](https://github.com/deepwissen/preflight-core)) and the npm package is a small
+  `dist/` bundle you can read: `npm pack @deepwissen/vet`.
+- **No known vulnerabilities** in
+  [Snyk's database](https://security.snyk.io/package/npm/@deepwissen%2Fvet)
+  (independently indexed).
+
+And it never tells you you're "safe" — a clean scan means nothing was *found*, not that
+nothing is *there*. `vet` surfaces candidates to review, each with a reason and a fix.
+
 ## Usage
 ```bash
 vet                    # scan git staged changes (default)
