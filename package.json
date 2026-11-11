@@ -36,6 +36,9 @@
     "format": "prettier --write \"src/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\"",
     "typecheck": "tsc --noEmit",
+    "bench": "npm run build && node bench/run.mjs",
+    "bench:sample": "npm run build && node bench/sample/make-sample.mjs bench/.sample && node bench/run.mjs --corpus bench/.sample/corpus --labels bench/.sample/labels.jsonl --dataset \"generated sample (seed 42)\"",
+    "bench:test": "node --test bench/test/*.test.mjs",
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
