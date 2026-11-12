@@ -74,4 +74,15 @@ describe("renderHuman", () => {
   it("adds ANSI codes when color is on", () => {
     expect(renderHuman(summary, true)).toContain("\x1b[");
   });
+
+  // Integrity: a file too large to scan must be disclosed, never silently treated
+  // as clean — on both clean and findings runs.
+  it("discloses files skipped for size on a clean run", () => {
+    const out = renderHuman({ filesScanned: 3, findings: [], filesSkippedLarge: 2 }, false);
+    expect(out).toMatch(/2 NOT scanned — too large/);
+  });
+  it("discloses files skipped for size alongside findings", () => {
+    const out = renderHuman({ ...summary, filesSkippedLarge: 1 }, false);
+    expect(out).toMatch(/1 NOT scanned — too large/);
+  });
 });

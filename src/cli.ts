@@ -13,7 +13,7 @@ import { renderSarif } from "./report/sarif.js";
 import { runCanary } from "./canary.js";
 import type { ScanSummary, Severity, VetFinding } from "./types.js";
 
-const VERSION = "0.1.9"; // keep in sync with package.json
+const VERSION = "0.1.10"; // keep in sync with package.json
 
 /** Resolve the actual @deepwissen/preflight-core version in use (the engine that
  *  carries the detection rules), so `vet --version` shows which engine a user is
@@ -135,7 +135,7 @@ export function run(
     }
   }
 
-  const files = readFiles(paths);
+  const { files, skippedLarge } = readFiles(paths);
   const findings: VetFinding[] = [];
   let findingsSuppressed = 0;
   for (const f of files) {
@@ -174,6 +174,7 @@ export function run(
   const summary: ScanSummary = { filesScanned: files.length, findings };
   if (filesIgnored > 0) summary.filesIgnored = filesIgnored;
   if (findingsSuppressed > 0) summary.findingsSuppressed = findingsSuppressed;
+  if (skippedLarge.length > 0) summary.filesSkippedLarge = skippedLarge.length;
 
   if (values.json) {
     out(renderJson(summary) + "\n");

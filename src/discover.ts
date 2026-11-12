@@ -64,21 +64,33 @@ export interface FileToScan {
   content: string;
 }
 
-export function readFiles(paths: string[]): FileToScan[] {
+export interface ReadResult {
+  files: FileToScan[];
+  /** Text files skipped only because they exceed MAX_BYTES. Surfaced to the user —
+   *  a silently unscanned file must never read as "clean". */
+  skippedLarge: string[];
+}
+
+export function readFiles(paths: string[]): ReadResult {
   const seen = new Set<string>();
-  const result: FileToScan[] = [];
+  const files: FileToScan[] = [];
+  const skippedLarge: string[] = [];
   for (const p of paths) {
     if (seen.has(p) || looksBinary(p)) continue;
     seen.add(p);
     try {
       const st = statSync(p);
-      if (!st.isFile() || st.size > MAX_BYTES) continue;
+      if (!st.isFile()) continue;
+      if (st.size > MAX_BYTES) {
+        skippedLarge.push(p); // too large to scan — disclose it, don't drop it silently
+        continue;
+      }
       const content = readFileSync(p, "utf8");
       if (content.indexOf("\0") !== -1) continue; // NUL byte → binary, skip
-      result.push({ path: p, content });
+      files.push({ path: p, content });
     } catch {
       // unreadable / deleted — skip
     }
   }
-  return result;
+  return { files, skippedLarge };
 }

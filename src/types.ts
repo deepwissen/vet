@@ -19,4 +19,6 @@ export interface ScanSummary {
   filesIgnored?: number;
   /** Findings suppressed by inline vet:allow directives (surfaced, never silent). */
   findingsSuppressed?: number;
+  /** Files too large to scan (>1 MB) — surfaced so an unscanned file never reads as "clean". */
+  filesSkippedLarge?: number;
 }

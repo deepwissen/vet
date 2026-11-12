@@ -15,7 +15,7 @@ describe("readFiles", () => {
   it("reads normal text files", () => {
     const p = join(dir, "a.ts");
     writeFileSync(p, "export const x = 1;");
-    const files = readFiles([p]);
+    const { files } = readFiles([p]);
     expect(files).toHaveLength(1);
     expect(files[0].content).toContain("const x");
   });
@@ -23,25 +23,27 @@ describe("readFiles", () => {
   it("skips binary-extension files", () => {
     const p = join(dir, "model.pkl");
     writeFileSync(p, "has a binary ext");
-    expect(readFiles([p])).toHaveLength(0);
+    expect(readFiles([p]).files).toHaveLength(0);
   });
 
   it("skips files containing NUL bytes", () => {
     const p = join(dir, "blob.dat");
     writeFileSync(p, Buffer.from("text" + String.fromCharCode(0) + "more"));
-    expect(readFiles([p])).toHaveLength(0);
+    expect(readFiles([p]).files).toHaveLength(0);
   });
 
-  it("skips oversized files (>1MB)", () => {
+  it("skips oversized files (>1MB) but DISCLOSES them (never silently)", () => {
     const p = join(dir, "big.txt");
     writeFileSync(p, "a".repeat(1_000_001));
-    expect(readFiles([p])).toHaveLength(0);
+    const { files, skippedLarge } = readFiles([p]);
+    expect(files).toHaveLength(0);
+    expect(skippedLarge).toContain(p); // surfaced, not silently dropped
   });
 
   it("de-duplicates repeated paths", () => {
     const p = join(dir, "dup.ts");
     writeFileSync(p, "const y = 2;");
-    expect(readFiles([p, p])).toHaveLength(1);
+    expect(readFiles([p, p]).files).toHaveLength(1);
   });
 });
 

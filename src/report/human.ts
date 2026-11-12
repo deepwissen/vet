@@ -21,6 +21,8 @@ export function renderHuman(summary: ScanSummary, color: boolean): string {
   if (summary.filesIgnored) notes.push(`${summary.filesIgnored} skipped by .vetignore`);
   if (summary.findingsSuppressed)
     notes.push(`${summary.findingsSuppressed} suppressed by vet:allow`);
+  if (summary.filesSkippedLarge)
+    notes.push(`${summary.filesSkippedLarge} NOT scanned — too large (>1 MB)`);
   const ignoredNote = notes.length ? paint("dim", ` (${notes.join(", ")})`) : "";
 
   if (summary.findings.length === 0) {
