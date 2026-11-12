@@ -1,17 +1,92 @@
 [
-  { "name": "flask", "url": "https://github.com/pallets/flask", "type": "app", "sha": null },
-  { "name": "requests", "url": "https://github.com/psf/requests", "type": "app", "sha": null },
-  { "name": "express", "url": "https://github.com/expressjs/express", "type": "app", "sha": null },
-  { "name": "gin", "url": "https://github.com/gin-gonic/gin", "type": "app", "sha": null },
-  { "name": "django", "url": "https://github.com/django/django", "type": "app", "sha": null },
-  { "name": "stripe-node", "url": "https://github.com/stripe/stripe-node", "type": "sdk", "sha": null },
-  { "name": "stripe-python", "url": "https://github.com/stripe/stripe-python", "type": "sdk", "sha": null },
-  { "name": "aws-sdk-js", "url": "https://github.com/aws/aws-sdk-js-v3", "type": "sdk", "sha": null },
-  { "name": "prometheus", "url": "https://github.com/prometheus/prometheus", "type": "infra", "sha": null },
-  { "name": "consul", "url": "https://github.com/hashicorp/consul", "type": "infra", "sha": null },
-  { "name": "ingress-nginx", "url": "https://github.com/kubernetes/ingress-nginx", "type": "infra", "sha": null },
-  { "name": "helm", "url": "https://github.com/helm/helm", "type": "infra", "sha": null },
-  { "name": "fastapi", "url": "https://github.com/fastapi/fastapi", "type": "docs", "sha": null },
-  { "name": "mkdocs", "url": "https://github.com/mkdocs/mkdocs", "type": "docs", "sha": null },
-  { "name": "vue-docs", "url": "https://github.com/vuejs/docs", "type": "docs", "sha": null }
+  {
+    "name": "flask",
+    "url": "https://github.com/pallets/flask",
+    "type": "app",
+    "sha": "49943b5a94413a530761350f04e896f76e8d620e"
+  },
+  {
+    "name": "requests",
+    "url": "https://github.com/psf/requests",
+    "type": "app",
+    "sha": "3c7baaa05ab4aa49cc819ce3a819d260de19c157"
+  },
+  {
+    "name": "express",
+    "url": "https://github.com/expressjs/express",
+    "type": "app",
+    "sha": "43fca52d28a422c8be48fd489cbd4f2d6152bab6"
+  },
+  {
+    "name": "gin",
+    "url": "https://github.com/gin-gonic/gin",
+    "type": "app",
+    "sha": "0f09c3a9b4626d9fe9979cf4d0521d6ae32ab646"
+  },
+  {
+    "name": "django",
+    "url": "https://github.com/django/django",
+    "type": "app",
+    "sha": "a0f2e29e0a98ee14aa808ebe38ec5fb79c8af71f"
+  },
+  {
+    "name": "stripe-node",
+    "url": "https://github.com/stripe/stripe-node",
+    "type": "sdk",
+    "sha": "6237106099542b8e0a3b52ef78308b3f678e93a6"
+  },
+  {
+    "name": "stripe-python",
+    "url": "https://github.com/stripe/stripe-python",
+    "type": "sdk",
+    "sha": "38d853bcca96a22796a496705455ea18e2558a2e"
+  },
+  {
+    "name": "aws-sdk-js",
+    "url": "https://github.com/aws/aws-sdk-js-v3",
+    "type": "sdk",
+    "sha": "5b4a724f2ac4006ea5a98c2fed6c629f6845b9bd"
+  },
+  {
+    "name": "prometheus",
+    "url": "https://github.com/prometheus/prometheus",
+    "type": "infra",
+    "sha": "49c815a0ea46c7a6a6b723e4b634c4bf36f7022c"
+  },
+  {
+    "name": "consul",
+    "url": "https://github.com/hashicorp/consul",
+    "type": "infra",
+    "sha": "42686d513c56de628fcdcbeb8673ff3ae9a607c5"
+  },
+  {
+    "name": "ingress-nginx",
+    "url": "https://github.com/kubernetes/ingress-nginx",
+    "type": "infra",
+    "sha": "dbb11b92ddb77bee9c35e462479129354c84f939"
+  },
+  {
+    "name": "helm",
+    "url": "https://github.com/helm/helm",
+    "type": "infra",
+    "sha": "6234f6228f3134e087739e5c2eb79650b2c0b99d"
+  },
+  {
+    "name": "fastapi",
+    "url": "https://github.com/fastapi/fastapi",
+    "type": "docs",
+    "sha": "5add7a458d629b07311d48261f696b5ac2bb9a5f"
+  },
+  {
+    "name": "mkdocs",
+    "url": "https://github.com/mkdocs/mkdocs",
+    "type": "docs",
+    "sha": "2862536793b3c67d9d83c33e0dd6d50a791928f8"
+  },
+  {
+    "name": "vue-docs",
+    "url": "https://github.com/vuejs/docs",
+    "type": "docs",
+    "sha": "40aa88af0094f7bab4aaf786e55c748a6a251d88"
+  }
 ]
