@@ -18,3 +18,29 @@ jobs:
       - run: npm run typecheck
       - run: npm run test:coverage
       - run: npm run build
+
+  # Secret-detection regression gate: scores vet against a deterministic sample
+  # corpus (seed 42) and fails the build if recall or precision drops. vet-only —
+  # no gitleaks binary needed in CI. Thresholds sit just below current (recall
+  # 0.979 / precision 0.870) so a real regression trips it without flaking.
+  bench:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "npm"
+      - run: npm ci
+      - run: npm run build
+      - run: npm run bench:test # scoring-logic unit tests
+      - name: Benchmark regression gate (vet on sample corpus)
+        run: |
+          node bench/sample/make-sample.mjs bench/.sample
+          node bench/run.mjs \
+            --corpus bench/.sample/corpus \
+            --labels bench/.sample/labels.jsonl \
+            --dataset "sample (seed 42)" \
+            --tools vet \
+            --fail-under-recall 0.95 \
+            --fail-under-precision 0.85
