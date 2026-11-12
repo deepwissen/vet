@@ -39,7 +39,8 @@
     "bench": "npm run build && node bench/run.mjs",
     "bench:sample": "npm run build && node bench/sample/make-sample.mjs bench/.sample && node bench/run.mjs --corpus bench/.sample/corpus --labels bench/.sample/labels.jsonl --dataset \"generated sample (seed 42)\"",
     "bench:test": "node --test bench/test/*.test.mjs",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "bench:noise": "npm run build && node bench/noise.mjs"
   },
   "dependencies": {
     "@deepwissen/preflight-core": "^0.1.6"

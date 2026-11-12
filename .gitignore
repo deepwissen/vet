@@ -7,3 +7,4 @@ coverage/
 bench/results/
 bench/.sample/
 bench/data/
+bench/.noise/
