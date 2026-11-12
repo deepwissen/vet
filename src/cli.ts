@@ -20,7 +20,7 @@ import { renderSarif } from "./report/sarif.js";
 import { runCanary } from "./canary.js";
 import type { ScanSummary, Severity, VetFinding } from "./types.js";
 
-const VERSION = "0.1.12"; // keep in sync with package.json
+const VERSION = "0.1.13"; // keep in sync with package.json
 
 /** Resolve the actual @deepwissen/preflight-core version in use (the engine that
  *  carries the detection rules), so `vet --version` shows which engine a user is
