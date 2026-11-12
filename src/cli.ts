@@ -3,17 +3,24 @@ import { relative, resolve, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { readFileSync, existsSync } from "node:fs";
 import { auditDetectedExposure, isAiIgnoreFile } from "@deepwissen/preflight-core";
-import { changedSince, expandPaths, readFiles, stagedFiles } from "./discover.js";
+import {
+  changedSince,
+  expandPaths,
+  historyEntries,
+  isGitRepo,
+  readFiles,
+  stagedFiles,
+} from "./discover.js";
 import { loadIgnore } from "./ignore.js";
 import { applyInlineSuppressions } from "./suppress.js";
-import { scanFile } from "./scan.js";
+import { scanFile, scanHistory } from "./scan.js";
 import { renderHuman } from "./report/human.js";
 import { renderJson } from "./report/json.js";
 import { renderSarif } from "./report/sarif.js";
 import { runCanary } from "./canary.js";
 import type { ScanSummary, Severity, VetFinding } from "./types.js";
 
-const VERSION = "0.1.11"; // keep in sync with package.json
+const VERSION = "0.1.12"; // keep in sync with package.json
 
 /** Resolve the actual @deepwissen/preflight-core version in use (the engine that
  *  carries the detection rules), so `vet --version` shows which engine a user is
@@ -46,6 +53,8 @@ Usage:
   vet [paths...]         Scan the given files/dirs
   vet                    Scan git staged changes (default)
   vet --since <ref>      Scan files changed since a git ref (e.g. main)
+  vet --history          Scan git history — catch secrets added in past commits
+                         even if later deleted (optionally bounded by --since <ref>)
   vet canary             Runtime test: does your AI agent read ignored files?
                          (vet canary --check | --cleanup | --help)
 
@@ -85,6 +94,7 @@ export function run(
       options: {
         since: { type: "string" },
         staged: { type: "boolean" },
+        history: { type: "boolean" },
         json: { type: "boolean" },
         sarif: { type: "boolean" },
         "fail-on": { type: "string", default: "error" },
@@ -111,6 +121,32 @@ export function run(
     const engine = engineVersion();
     out(VERSION + (engine ? ` (engine @deepwissen/preflight-core ${engine})` : "") + "\n");
     return 0;
+  }
+
+  // History mode: scan what each commit ADDED, so secrets removed from the working
+  // tree but still in git history are caught (gitleaks parity).
+  if (values.history) {
+    if (!isGitRepo()) {
+      err("vet: --history requires a git repository\n");
+      return 2;
+    }
+    const since = typeof values.since === "string" ? values.since : undefined;
+    const { entries, commitsScanned, truncated } = historyEntries({ since });
+    const findings = scanHistory(entries);
+    const summary: ScanSummary = { filesScanned: entries.length, findings, commitsScanned };
+    if (truncated) summary.historyTruncated = true;
+    if (values.json) {
+      out(renderJson(summary) + "\n");
+    } else if (values.sarif) {
+      out(renderSarif(summary) + "\n");
+    } else if (!(values.quiet && findings.length === 0)) {
+      const color = Boolean(process.stdout.isTTY) && !values["no-color"] && !process.env.NO_COLOR;
+      out(renderHuman(summary, color) + "\n");
+    }
+    if (findings.length === 0) return 0;
+    const failOn = String(values["fail-on"]);
+    const threshold = failOn === "error" ? 3 : failOn === "warning" ? 2 : 1;
+    return findings.some((f) => rank(f.severity) >= threshold) ? 1 : 0;
   }
 
   let paths: string[];

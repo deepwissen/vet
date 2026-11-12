@@ -10,6 +10,7 @@ import {
   type InstructionFileIssue,
 } from "@deepwissen/preflight-core";
 import { langFromPath, isInstructionFile, isMcpConfig } from "./languages.js";
+import type { HistoryEntry } from "./discover.js";
 import type { Severity, VetFinding } from "./types.js";
 
 function emptySnapshot(): ContextSnapshot {
@@ -119,4 +120,27 @@ export function scanFile(path: string, content: string): VetFinding[] {
   }
 
   return findings;
+}
+
+/**
+ * Scan the lines each commit ADDED (from `historyEntries`) for secrets etc.,
+ * remap each finding's line number back to the real new-file line, tag it with
+ * the commit, and de-duplicate across commits (a value re-added in several commits
+ * is reported once). History scanning is about what leaked at any point, so inline
+ * suppressions and the ignore layer don't apply.
+ */
+export function scanHistory(entries: HistoryEntry[]): VetFinding[] {
+  const out: VetFinding[] = [];
+  const seen = new Set<string>();
+  for (const e of entries) {
+    for (const f of scanFile(e.path, e.content)) {
+      const realLine = f.line ? (e.lineMap[f.line - 1] ?? f.line) : undefined;
+      // Dedup on the secret identity (file + rule + redacted preview), not commit.
+      const key = `${e.path}\x00${f.rule}\x00${f.message}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push({ ...f, line: realLine, commit: e.commit });
+    }
+  }
+  return out;
 }

@@ -10,6 +10,8 @@ export interface VetFinding {
   category: Category;
   message: string;
   suggestion?: string;
+  /** Short commit SHA that introduced this (history scans only). */
+  commit?: string;
 }
 
 export interface ScanSummary {
@@ -21,4 +23,8 @@ export interface ScanSummary {
   findingsSuppressed?: number;
   /** Files too large to scan (>1 MB) — surfaced so an unscanned file never reads as "clean". */
   filesSkippedLarge?: number;
+  /** --history: number of commits scanned (replaces the file count in the report). */
+  commitsScanned?: number;
+  /** --history: true when history exceeded the commit cap and was truncated. */
+  historyTruncated?: boolean;
 }

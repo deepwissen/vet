@@ -17,19 +17,25 @@ const CODES: Record<string, string> = {
 export function renderHuman(summary: ScanSummary, color: boolean): string {
   const paint = (key: string, s: string): string => (color ? `${CODES[key]}${s}${CODES.reset}` : s);
 
+  const history = summary.commitsScanned !== undefined;
+  const scope = history
+    ? `${summary.commitsScanned} commit(s) of history`
+    : `${summary.filesScanned} file(s)`;
+
   const notes: string[] = [];
   if (summary.filesIgnored) notes.push(`${summary.filesIgnored} skipped by .vetignore`);
   if (summary.findingsSuppressed)
     notes.push(`${summary.findingsSuppressed} suppressed by vet:allow`);
   if (summary.filesSkippedLarge)
     notes.push(`${summary.filesSkippedLarge} NOT scanned — too large (>1 MB)`);
+  if (summary.historyTruncated) notes.push(`history truncated at the commit cap`);
   const ignoredNote = notes.length ? paint("dim", ` (${notes.join(", ")})`) : "";
 
   if (summary.findings.length === 0) {
     // No reassuring "✓ no findings": a clean scan is bounded by scanner recall, so
     // it must carry the disclaimer — "0 findings" must never read as "no secrets".
     return (
-      `vet: nothing flagged at or above the gate in ${summary.filesScanned} file(s)` +
+      `vet: nothing flagged at or above the gate in ${scope}` +
       ignoredNote +
       "\n" +
       paint("dim", `  note: ${DETECTION_DISCLAIMER}`)
@@ -52,9 +58,11 @@ export function renderHuman(summary: ScanSummary, color: boolean): string {
     lines.push(paint("bold", file));
     for (const f of items) {
       const loc = f.line ? `:${f.line}` : "";
+      const at = f.commit ? ` ${paint("dim", `@ ${f.commit}`)}` : "";
       lines.push(
         `  ${paint(f.severity, f.severity.toUpperCase())} ${paint("dim", `[${f.category}]`)} ${f.message}` +
-          (loc ? paint("dim", `  (${file}${loc})`) : "")
+          (loc ? paint("dim", `  (${file}${loc})`) : "") +
+          at
       );
       if (f.suggestion) lines.push("    " + paint("dim", `→ ${f.suggestion}`));
     }

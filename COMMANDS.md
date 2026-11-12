@@ -12,6 +12,7 @@ is modified and nothing is sent anywhere.
 | `vet` | Scan **git staged** changes (default — the pre-commit use case) |
 | `vet <paths...>` | Scan specific files/dirs, e.g. `vet src/ config.json` |
 | `vet --since <ref>` | Scan files changed since a git ref, e.g. `vet --since main` (pre-PR use case) |
+| `vet --history` | Scan **git history** — catch secrets added in past commits even if later deleted (bound with `--since <ref>`) |
 | `vet canary` | Runtime test — does your AI agent actually read ignored files? (see below) |
 
 ## Output modes

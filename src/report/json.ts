@@ -10,6 +10,8 @@ export function renderJson(summary: ScanSummary): string {
       // Files not scanned because they exceed 1 MB — surfaced in JSON too, so CI
       // pipelines see the warning, not just the human report.
       ...(summary.filesSkippedLarge ? { filesSkippedLarge: summary.filesSkippedLarge } : {}),
+      ...(summary.commitsScanned !== undefined ? { commitsScanned: summary.commitsScanned } : {}),
+      ...(summary.historyTruncated ? { historyTruncated: true } : {}),
       findings: summary.findings,
     },
     null,

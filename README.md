@@ -78,6 +78,8 @@ vet src/ config/       # scan specific files/dirs
 vet --json             # machine-readable JSON
 vet --sarif            # SARIF 2.1.0 → GitHub code scanning annotations
 vet --fail-on any      # fail on any finding (default: error — real exposures only)
+vet --history          # scan git history — catch secrets added in past commits,
+                       #   even if later deleted (bound with --since <ref>)
 vet canary             # runtime test: does your agent read ignored files?
 ```
 
