@@ -1,0 +1,17 @@
+[
+  { "name": "flask", "url": "https://github.com/pallets/flask", "type": "app", "sha": null },
+  { "name": "requests", "url": "https://github.com/psf/requests", "type": "app", "sha": null },
+  { "name": "express", "url": "https://github.com/expressjs/express", "type": "app", "sha": null },
+  { "name": "gin", "url": "https://github.com/gin-gonic/gin", "type": "app", "sha": null },
+  { "name": "django", "url": "https://github.com/django/django", "type": "app", "sha": null },
+  { "name": "stripe-node", "url": "https://github.com/stripe/stripe-node", "type": "sdk", "sha": null },
+  { "name": "stripe-python", "url": "https://github.com/stripe/stripe-python", "type": "sdk", "sha": null },
+  { "name": "aws-sdk-js", "url": "https://github.com/aws/aws-sdk-js-v3", "type": "sdk", "sha": null },
+  { "name": "prometheus", "url": "https://github.com/prometheus/prometheus", "type": "infra", "sha": null },
+  { "name": "consul", "url": "https://github.com/hashicorp/consul", "type": "infra", "sha": null },
+  { "name": "ingress-nginx", "url": "https://github.com/kubernetes/ingress-nginx", "type": "infra", "sha": null },
+  { "name": "helm", "url": "https://github.com/helm/helm", "type": "infra", "sha": null },
+  { "name": "fastapi", "url": "https://github.com/fastapi/fastapi", "type": "docs", "sha": null },
+  { "name": "mkdocs", "url": "https://github.com/mkdocs/mkdocs", "type": "docs", "sha": null },
+  { "name": "vue-docs", "url": "https://github.com/vuejs/docs", "type": "docs", "sha": null }
+]
