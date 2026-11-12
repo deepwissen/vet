@@ -37,6 +37,13 @@ describe("renderJson", () => {
     expect(o.findings).toHaveLength(2);
     expect(o.findings[0].rule).toBe("aws-access-key");
   });
+
+  it("discloses files skipped for size in JSON (so CI sees it)", () => {
+    const o = JSON.parse(renderJson({ ...summary, filesSkippedLarge: 3 }));
+    expect(o.filesSkippedLarge).toBe(3);
+    // absent when none skipped (no noise)
+    expect(JSON.parse(renderJson(summary)).filesSkippedLarge).toBeUndefined();
+  });
 });
 
 describe("renderSarif", () => {
